@@ -70,7 +70,7 @@
 | 匿名内部类 | flatMap/map/keyBy中大量使用，实现函数式接口   |
 
 ### 代码文件
-- WorldCountStreamDemo.java（独立实现）
+- WorldCount.java（独立实现）
 
 ### 明日计划
 - Flink算子深入：flatMap vs map vs filter
