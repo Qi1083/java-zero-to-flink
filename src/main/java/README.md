@@ -51,3 +51,27 @@
 ### 明日计划
 - 类型擦除 (理解泛型底层)
 - 开始Flink DataStream API 实战
+
+## Day 4（2026.04.13）
+
+### 今日目标
+独立写Flink WordCount，理解类型擦除
+
+### 完成内容
+- [x] Flink WordCount完整实现（临摹→独立写→对照）
+- [x] 类型擦除理解：运行时`Box<String>`和`Box<Integer>`是同一个类
+- [x] 掌握泛型限制：不能`instanceof T`，不能`new T()`
+
+### 关键理解
+| 概念 | 说明                               |
+|------|----------------------------------|
+| DataStreamSource<T> | extends DataStream<T>，泛型参数在运行期擦除 |
+| 类型擦除 | 编译期检查类型安全，编译期生成字节码时变成原始类型        |
+| 匿名内部类 | flatMap/map/keyBy中大量使用，实现函数式接口   |
+
+### 代码文件
+- WorldCountStreamDemo.java（独立实现）
+
+### 明日计划
+- Flink算子深入：flatMap vs map vs filter
+- 状态管理概念

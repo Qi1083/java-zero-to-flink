@@ -36,6 +36,19 @@ public class Box<T> {
         Box.swap(b2, b3);
 
         System.out.println("交换后：" + b2.get() + "," + b3.get());
+
+        System.out.println("##########################");
+
+        // JVM 看Box<String> 和 Box<Integer> 是两个不同类型吗
+        System.out.println(b1.item.getClass());
+        System.out.println(b1.getClass());
+        System.out.println(b1.getClass().equals(b2.getClass()));  // 返回为True 证明类型被擦除
+
+
+        if (b1 instanceof Box){
+            System.out.println("True");
+        }
+
     }
 
 }

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>FlinkTutorial</artifactId>
+    <groupId>com.example</groupId>
+    <artifactId>java-zero-to-flink</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,44 +16,100 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <flink.version>1.20.3</flink.version>
-        <scala.binary.version>2.12</scala.binary.version>
+        <flink.version>1.18.0</flink.version>
     </properties>
 
     <dependencies>
-        <!-- Flink 核心（本地运行必须去掉 provided） -->
+        <!-- Flink 核心依赖 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java</artifactId>
             <version>${flink.version}</version>
+            <!-- 提交集群时必须改为 provided，本地 IDE 调试可暂时注释掉 -->
+            <!-- <scope>provided</scope> -->
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients</artifactId>
             <version>${flink.version}</version>
+            <!-- <scope>provided</scope> -->
         </dependency>
 
-        <!-- 日志（Flink 自带，不用自己引） -->
+        <!-- 数据生成连接器 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-datagen</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <!-- SLF4J 2.0 实现（与 Flink 1.18 对齐） -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-files</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
     </dependencies>
 
-    <!-- JDK17 必须加这个插件，否则运行报错 -->
     <build>
         <plugins>
+            <!-- 编译插件（移除错误的 -add-opens） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
-                    <argLine>
-                        --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                        --add-opens java.base/java.io=ALL-UNNAMED
-                        --add-opens java.base/java.math=ALL-UNNAMED
-                        --add-opens java.base/java.net=ALL-UNNAMED
-                        --add-opens java.base/java.nio=ALL-UNNAMED
-                    </argLine>
+                    <source>17</source>
+                    <target>17</target>
+                    <release>17</release>
                 </configuration>
+            </plugin>
+
+            <!-- 执行插件：仅负责指定主类，JVM 参数通过外部传入 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>flink.WorldCountStreamDemo</mainClass>
+                </configuration>
+            </plugin>
+
+            <!-- 打包插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>flink.WorldCount</mainClass>
+                                </transformer>
+                            </transformers>
+                            <!-- 避免 Flink 内置依赖被重复打包 -->
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.apache.flink:flink-shaded-force-shading</exclude>
+                                    <exclude>com.google.code.findbugs:jsr305</exclude>
+                                    <exclude>org.slf4j:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

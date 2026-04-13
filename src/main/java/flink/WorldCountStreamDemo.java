@@ -1,3 +1,5 @@
+package flink;
+
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -38,7 +40,7 @@ public class WorldCountStreamDemo {
 
         sumDS.print();
         // TODO 启动
-        env.execute();
+        env.execute("WorldCountStreamDemo");
 
     }
 }
