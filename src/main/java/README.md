@@ -75,3 +75,32 @@
 ### 明日计划
 - Flink算子深入：flatMap vs map vs filter
 - 状态管理概念
+
+## Day 5（2026.04.14）
+
+### 今日目标
+理解map、flatmap、filter的区别，理解状态管理基础
+
+### 完成内容
+- [x] map、flatmap、filter代码对照
+- [x] 状态管理基础示例
+
+### 关键理解
+算子	    作用	        输入条数	      输出条数	         效果
+map	    一对一转换	1 条	       1 条	            变个样子
+filter	过滤	        1 条	    0 条 或 1 条	        留下符合条件的
+flatMap	一对多展开	1 条	    0 条 / 1 条 / 多条	拆开、打散、输出多个
+
+特性	      普通局部变量	Flink ValueState 状态
+跨数据保存	❌ 不保存	   ✅ 永久保存
+key 隔离	    ❌ 共用	       ✅ 每个 key 独立存储
+容错恢复	    ❌ 重启丢失	   ✅ 自动恢复
+多并行度安全	❌ 线程不安全	   ✅ 框架管理，安全
+过期清理	    ❌ 不能	       ✅ 支持 TTL 自动清理
+
+### 代码文件
+- MapFilterFlatMap.java（独立实现）
+- KeyedValueStateDemo.java（参照完成）
+
+### 明日计划
+- Flink集群架构
