@@ -104,3 +104,50 @@ key 隔离	    ❌ 共用	       ✅ 每个 key 独立存储
 
 ### 明日计划
 - Flink集群架构
+
+## Day 6（2026.04.15）
+
+### 今日目标
+补充Flink架构基础，建立分布式视角
+
+### 完成内容
+- [x] Flink架构：JobManager/TaskManager/Slot
+- [x] 算子链：flatMap+map+filter如何变成执行任务
+- [x] 分布式视角理解ValueState（状态存在TaskManager内存）
+
+### 关键理解
+| 组件 | 作用 | 与ValueState的关系 |
+|------|------|------------------|
+| JobManager | 协调调度，分配任务 | 触发Checkpoint保存状态 |
+| TaskManager | 实际执行代码 | 状态存在其内存（Heap/RocksDB） |
+| Slot | 资源单元 | 一个Slot运行一个任务链 |
+| 算子链 | 优化执行，减少序列化 | map/filter可能合并为一个任务 |
+
+### 架构图（手绘理解）
+关于 TaskManager 与状态存储
+你的描述：“状态存在其内存（Heap/RocksDB）”
+补充：完全正确。更准确地说，是存在 TaskManager 进程所在的本地资源中。
+如果是 Heap 模式：直接占用 TaskManager 的 JVM 堆内存。
+如果是 RocksDB 模式：占用 TaskManager 配置的 本地磁盘目录（同时利用堆外内存做缓存）。
+分布式视角：这意味着状态是分散在集群各个 TaskManager 节点上的，而不是集中在 JobManager 或某个中心数据库里。
+
+关于 JobManager 与状态
+你的描述：“触发 Checkpoint 保存状态”
+补充：JobManager 是 Checkpoint 的指挥官，但它不存储业务状态数据。
+它负责定期发送 Barrier（屏障）给 Source，触发整个数据流的快照。
+真正的状态数据（State Data）是由 TaskManager 汇报给远程存储（如 HDFS/S3）的。JobManager 只保存“元数据”（即：最近一次成功的 Checkpoint 在哪里）。
+
+关于 Slot 与 算子链
+你的描述：“一个 Slot 运行一个任务链”
+补充：这里有一个微妙的逻辑关系。
+算子链（Operator Chain）是逻辑上的优化（把 map+filter 打包）。
+Slot 是物理上的容器。
+一个 Slot 可以运行多个算子链（比如 Source 链 + Map 链 + Sink 链），前提是它们属于同一个作业且开启了槽共享。不过你的理解“一个 Slot 运行一个任务链”在单链场景下是完全没问题的，核心在于“同作业、不同算子可共享 Slot”。
+
+🎨 架构图
+顶层（协调层）：JobManager（Master），画在上方，负责发号施令。
+中间层（网络/存储）：HDFS/S3，用于存 Checkpoint；Kafka（数据源）。
+底层（工作层）：一排 TaskManager（Worker）。
+每个 TaskManager 里面画几个格子，代表 Slot。
+关键点：在 Slot 的格子里，画上 ValueState。
+连线：数据从 Kafka 进来，经过 Slot 1 的 Source -> Slot 1 的 Map（此时访问 Slot 1 里的 ValueState） -> 网络传输（如果是 keyBy） -> Slot 2 的 Window -> Slot 2 的 Sink。
