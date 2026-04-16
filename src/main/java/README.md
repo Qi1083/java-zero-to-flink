@@ -277,3 +277,4 @@ Checkpoint机制	           理解barrier、快照、恢复
   窗口概念（Tumbling/Sliding/Session）	   概念加代码
   Watermarks与事件时间	                  概念加代码
       提交GitHub	                          Day 8记录	
+  
