@@ -2,16 +2,18 @@ package flink;
 
 public class WaterSensor {
     private String id;      // 传感器ID
-    private Integer vc;     // 水位值
     private Long ts;        // 时间戳（秒）
+    private Integer vc;     // 水位值
+
 
     public WaterSensor() {
     }
 
-    public WaterSensor(String id, Integer vc, Long ts) {
+    public WaterSensor(String id, Long ts, Integer vc) {
         this.id = id;
-        this.vc = vc;
         this.ts = ts;
+        this.vc = vc;
+
     }
 
     // Getters
@@ -29,6 +31,6 @@ public class WaterSensor {
 
     @Override
     public String toString() {
-        return String.format("WaterSensor{id='%s', vc=%d, ts=%d}", id, vc, ts);
+        return String.format("WaterSensor{id='%s', ts=%d, vc=%d}", id, ts, vc);
     }
 }

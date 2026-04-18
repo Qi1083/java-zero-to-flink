@@ -40,12 +40,12 @@ public class KeyedValueStateDemo {
             @Override
             public void processElement(WaterSensor value, KeyedProcessFunction<String, WaterSensor, String>.Context ctx, Collector<String> out) throws Exception {
                 // 取出上一个水位值
-                Integer lastlVc = lastVcState.value() == null ? 0 : (Integer) lastVcState.value();
+                Integer lastVc = lastVcState.value() == null ? 0 : (Integer) lastVcState.value();
 
                 // 求差值绝对值是否超过10
                 Integer vc = value.getVc();
-                if (Math.abs(vc - lastlVc) > 10) {
-                    out.collect("传感器：" + value.getId() + "===>当前水位值：" + vc + ",与上一条水位值：" + lastlVc + ",相差超过10！！！");
+                if (Math.abs(vc - lastVc) > 10) {
+                    out.collect("传感器：" + value.getId() + "===>当前水位值：" + vc + ",与上一条水位值：" + lastVc + ",相差超过10！！！");
                 }
                 lastVcState.update(vc);
             }

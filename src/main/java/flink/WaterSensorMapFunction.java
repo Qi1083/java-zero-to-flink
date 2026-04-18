@@ -7,7 +7,7 @@ public class WaterSensorMapFunction implements MapFunction<String, WaterSensor> 
 
     @Override
     public WaterSensor map(String value) throws Exception {
-        // 格式: sensor1,100,1713123456 (id,vc,ts)
+        // 格式: sensor1,1713123456,100 (id,ts,vc)
         String[] parts = value.trim().split(",");
 
         if (parts.length != 3) {
@@ -18,8 +18,9 @@ public class WaterSensorMapFunction implements MapFunction<String, WaterSensor> 
         try {
             return new WaterSensor(
                     parts[0].trim(),
-                    Integer.parseInt(parts[1].trim()),
-                    Long.parseLong(parts[2].trim())
+                    Long.parseLong(parts[1].trim()),
+                    Integer.parseInt(parts[2].trim())
+
             );
         } catch (NumberFormatException e) {
             System.err.println("Parse error: " + value);

@@ -277,4 +277,24 @@ Checkpoint机制	           理解barrier、快照、恢复
   窗口概念（Tumbling/Sliding/Session）	   概念加代码
   Watermarks与事件时间	                  概念加代码
       提交GitHub	                          Day 8记录	
+
+
+## Day 7-8（2026.04.17-18）
+
+### 完成内容
+- [x] Checkpoint机制理解（barrier、对齐/非对齐）
+- [x] ValueState手写3遍，从生疏到清晰
+- [x] 状态后端对比（Heap vs RocksDB）
+- [x] 窗口示例（Tumbling/Sliding）
+
+### 关键突破
+ValueState从"看懂了写不出" → "15分钟手写完成"
+
+### 待加强
+- 复杂代码整合（第4周项目实战补）
+- Watermarks与事件时间（下周）
+
+### 代码文件
+- CheckpointAdd.java
+- ValueStateTrain.java
   
