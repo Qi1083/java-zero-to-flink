@@ -297,4 +297,9 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 ### 代码文件
 - CheckpointAdd.java
 - ValueStateTrain.java
-  
+
+## Day 9（2026.04.20）
+- Checkpoint + Watermark + EventTime窗口 + ValueState TTL
+- 独立写出生产级代码：`CheckPointWatermarkWindowAccDemo.java`
+- 自定义Source + 窗口聚合 + 状态累加
+- 手写3遍，从生疏到流畅
