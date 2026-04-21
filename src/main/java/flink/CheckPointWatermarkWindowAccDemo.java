@@ -1,5 +1,8 @@
 package flink;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
@@ -118,4 +121,5 @@ public class CheckPointWatermarkWindowAccDemo {
             isRunning = false;
         }
     }
+
 }

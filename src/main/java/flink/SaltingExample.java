@@ -101,7 +101,7 @@ public class SaltingExample {
         // ========== 第二阶段：全局聚合（按原始key分组） ==========
         DataStream<Tuple2<String, Long>> finalResult = partialAgg
                 .keyBy(t -> t.f0)  // 按原始 userId 分组
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(2)))
+                .window(TumblingProcessingTimeWindows.of(Time.minutes(1)))
                 .aggregate(new AggregateFunction<Tuple3<String, String, Long>, Long, Long>() {
                     @Override
                     public Long createAccumulator() { return 0L; }

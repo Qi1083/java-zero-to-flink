@@ -333,14 +333,14 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 - CheckpointAdd.java
 - ValueStateTrain.java
 
-## Day 9（2026.04.20）
+## Day 9（2026.04.19）
 
 - Checkpoint + Watermark + EventTime窗口 + ValueState TTL
 - 独立写出生产级代码：`CheckPointWatermarkWindowAccDemo.java`
 - 自定义Source + 窗口聚合 + 状态累加
 - 手写3遍，从生疏到流畅
 
-## Day 10（2026.04.21）
+## Day 10（2026.04.20）
 
 ### 今日目标
 
@@ -358,3 +358,35 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 
 - [x] TestCaseEvent.java
 - [x] QualityDashboardKafka.java
+
+
+## Day 11（2026.04.21）
+
+### 今日目标
+实时质量看板项目骨架：通过率窗口 + 连续失败告警
+
+### 完成内容
+- [x] 双分支架构：同一数据源分流处理
+  - 分支1：每分钟模块通过率（TumblingWindow + AggregateFunction）
+  - 分支2：连续失败告警（KeyedProcessFunction + ValueState）
+- [x] 通过率计算：PASS数 / 总数 * 100%
+- [x] 连续失败告警：3次FAIL触发，非FAIL清零
+
+### 关键理解
+| 功能 | 分组Key | 技术 | 输出时机 |
+|------|---------|------|----------|
+| 每小时通过率 | module | TumblingWindow + Aggregate | 窗口关闭 |
+| 连续失败告警 | caseId | KeyedProcessFunction + ValueState | 来一条处理一条 |
+
+### 代码文件
+- `QualityDashboard.java`：主程序，双分支架构
+- `PassRateAggregate.java`：窗口聚合，计算通过率
+- `FailAlertFunction.java`：状态告警，记录连续FAIL
+
+### 待优化
+- 窗口从1分钟改为1小时（生产级）
+- ERROR是否算失败（当前PASS/ERROR都清零）
+- 接入真实Kafka数据源（当前用TestCaseSource模拟）
+
+### 学习感受
+从"想退缩"到"写出来了"。代码能跑但不熟，明天手写3遍巩固。
