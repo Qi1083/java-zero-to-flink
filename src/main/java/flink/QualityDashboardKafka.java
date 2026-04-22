@@ -19,8 +19,6 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -213,6 +211,7 @@ public class QualityDashboardKafka {
                     // failCountState.update(0); // 可选：告警后重置计数，或保留继续累加
                 }
             } else {
+                count = 0;
                 // PASS / SKIP / 其他状态 → 立即重置连续失败计数
                 failCountState.update(0);
             }

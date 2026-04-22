@@ -390,3 +390,10 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 
 ### 学习感受
 从"想退缩"到"写出来了"。代码能跑但不熟，明天手写3遍巩固。
+
+## Day 12（2026.04.22）
+- 生产级质量看板代码完成
+- Kafka Source + Watermark + EventTime窗口 + SideOutput告警
+- 借助AI完成配置和SideOutput，已理解能运行
+- 明日目标：手写3遍FailAlertFunction，剥离AI
+- 
