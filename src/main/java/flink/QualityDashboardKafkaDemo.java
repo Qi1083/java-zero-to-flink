@@ -133,71 +133,13 @@ public class QualityDashboardKafkaDemo {
                 .print("agg方式");
 
         // 连续失败告警
-        events.keyBy(TestCaseEvent::getModule).process(new KeyedProcessFunction<String, TestCaseEvent, TestCaseEvent>() {
-
-                    public static final OutputTag<AlertEvent> ALERT_TAG = new OutputTag<>("consecutive-fail-alert") {
-                    };
-
-                    private transient ValueState<Integer> failValueCount;
-                    private transient ValueState<Long> retainValueTime;
-
-                    private static final Integer failCount = 0;
-                    private static final long retainTime = 3_000L;
-
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-
-                        StateTtlConfig ttlConfig = newBuilder(org.apache.flink.api.common.time.Time.hours(24))
-                                .setUpdateType(StateTtlConfig.UpdateType.Disabled)
-                                .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
-                                .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
-                                .build();
-
-                        ValueStateDescriptor<Integer> valueDescriptor = new ValueStateDescriptor<>("failValueCount", Types.INT);
-                        valueDescriptor.enableTimeToLive(ttlConfig);
-
-                        failValueCount = getRuntimeContext().getState(valueDescriptor);
-
-                        ValueStateDescriptor<Long> retainDescriptor = new ValueStateDescriptor<>("retainValueTime", Types.LONG);
-                        retainDescriptor.enableTimeToLive(ttlConfig);
-
-                        retainValueTime = getRuntimeContext().getState(retainDescriptor);
-
-                    }
-
-                    @Override
-                    public void processElement(TestCaseEvent event, KeyedProcessFunction<String, TestCaseEvent, TestCaseEvent>.Context ctx, Collector<TestCaseEvent> out) throws Exception {
-
-                        int count = failValueCount.value() == null ? 0 : failValueCount.value();
-                        long lastAlert = retainValueTime.value() == null ? 0L : retainValueTime.value();
-                        long now = ctx.timerService().currentProcessingTime(); // 统一使用处理时间
-
-                        if ("FAIL".equalsIgnoreCase(event.getStatus())) {
-                            count++;
-
-                            if ((count >= 3) && (now - lastAlert > retainTime)) {
-                                ctx.output(ALERT_TAG, new AlertEvent(
-                                        event.getCaseId(), event.getModule(), count, now));
-                                retainValueTime.update(now);
-                            }
-
-                        } else {
-                            count = 0;
-                            failValueCount.update(0);
-                        }
-
-                        failValueCount.update(count);
-
-                        out.collect(event);
-
-                    }
-                }).getSideOutput(QualityDashboardKafka.ConsecutiveFailAlertFunction.ALERT_TAG)
+        events.keyBy(TestCaseEvent::getModule).process(
+                        new ConsecutiveFailAlertFunction()
+                ).getSideOutput(ConsecutiveFailAlertFunction.ALERT_TAG)
                 .print("连续失败告警");
-
 
         env.execute("QualityDashboardKafkaDemoTrain");
 
-
     }
 }
+

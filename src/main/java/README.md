@@ -396,4 +396,17 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 - Kafka Source + Watermark + EventTime窗口 + SideOutput告警
 - 借助AI完成配置和SideOutput，已理解能运行
 - 明日目标：手写3遍FailAlertFunction，剥离AI
-- 
+
+## Day 13（2026.04.23）
+
+### 今日突破
+- 独立写出完整质量看板代码（Kafka+Watermark+EventTime+SideOutput）
+- 自主发现并修复Bug：else层级错误导致计数永远到不了3
+- 测试验证：通过率窗口 + 连续失败告警 + 防重复告警，全部通过
+
+### 关键Bug修复
+| 错误 | 原因 | 修正 |
+|------|------|------|
+| 连续失败永远到不了3 | else写在内层if(count>=3)后面，导致count<3时清零 | else移到外层if(FAIL)后面，非FAIL才清零 |
+
+### 测试输出
