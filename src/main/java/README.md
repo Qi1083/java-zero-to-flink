@@ -410,3 +410,69 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 | 连续失败永远到不了3 | else写在内层if(count>=3)后面，导致count<3时清零 | else移到外层if(FAIL)后面，非FAIL才清零 |
 
 ### 测试输出
+
+# 项目一：实时质量看板（Quality Dashboard）
+
+## 业务背景
+**问题**：测试团队每天下班前才能看到测试报告，失败用例不能及时发现，问题定位延迟到次日。
+**目标**：构建实时数据管道，秒级统计测试用例通过率，连续3次失败立即触发告警。
+**价值**：将质量问题发现时间从“T+1天”缩短到“秒级”，降低线上故障逃逸率。
+
+## 技术架构
+![realTimeDashBoard.png](../img/realTimeDashBoard.png)
+
+
+## 3. 核心成果（量化）
+
+| 指标 | Before | After |
+|------|--------|-------|
+| 报告延迟 | 次日 | **秒级** |
+| 统计粒度 | 全量汇总 | **按模块每小时** |
+| 失败发现 | 人工巡检Excel | **连续3次FAIL自动告警** |
+| 状态保留 | 无 | **24小时TTL自动清理** |
+
+## 4. 踩坑记录
+
+| 问题 | 现象 | 解决 |
+|------|------|------|
+| 连续失败永远到不了3 | 告警不触发 | else写在内层if(count>=3)后面，导致count<3时就被清零；修正为外层if(FAIL)的else |
+| Kafka JSON解析失败 | 程序异常退出 | 加try-catch，异常数据过滤并打印日志 |
+| 告警刷屏 | 3次FAIL后每秒都输出告警 | ValueState记录上次告警时间，加3秒间隔限制 |
+
+## 5. 技术栈
+
+- **计算引擎**：Apache Flink 1.18
+- **编程语言**：Java 17
+- **消息队列**：Apache Kafka 3.5（Docker部署）
+- **时间语义**：EventTime + Watermark（乱序5秒容忍）
+- **状态后端**：HashMapStateBackend + Checkpoint外部化保留
+
+## 6. 运行说明
+
+### 6.1 启动Kafka环境
+- cd flink-lab
+- docker-compose up -d
+
+### 6.2 创建Topic
+docker compose exec kafka kafka-topics --create --topic test-cases --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+### 6.3 运行Flink程序
+IDEA中运行  QualityDashboardKafkaDemo.main() 
+
+### 6.4 发送测试数据
+docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-server localhost:9092
+
+输入JSON：
+{"caseId":"TC001","status":"PASS","timestamp":1713621300000,"module":"订单"}
+{"caseId":"TC002","status":"PASS","timestamp":1713621301000,"module":"支付"}
+{"caseId":"TC003","status":"FAIL","timestamp":1713621302000,"module":"用户"}
+
+### 6.5 观察输出
+通过率分支： 
+通过率> 模块：订单 | 通过：X | 总数：Y | 通过率：Z% 
+
+告警分支： 
+连续失败告警> AlertEvent(caseId=..., consecutiveFails=3)
+
+### 7. 项目截图
+![img.png](../img/runQualityDashBoardDemo.png)
