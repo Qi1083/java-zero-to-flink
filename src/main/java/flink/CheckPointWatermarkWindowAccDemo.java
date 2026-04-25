@@ -28,7 +28,7 @@ import java.util.Random;
 public class CheckPointWatermarkWindowAccDemo {
     public static void main(String[] args) throws Exception {
         Configuration config = new Configuration();
-        config.setString(RestOptions.BIND_PORT, "8081"); // 固定端口
+        config.setInteger(RestOptions.PORT, 8081); // 固定端口
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
 
@@ -59,7 +59,7 @@ public class CheckPointWatermarkWindowAccDemo {
                         .withTimestampAssigner((element, recordTimestamp) -> element.getTs() * 1000L)
         );
 
-        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.seconds(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
+        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.minutes(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
 
             private transient ValueState<Long> valueState;
 

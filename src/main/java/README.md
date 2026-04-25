@@ -494,6 +494,13 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
   - 任务管理器：某个核心突然飙高到80%+，其他核心空闲
   - **窗口输出间隔约2秒（Event Time快进导致Watermark快速推进）**
 - **结论**：数据倾斜+长窗口导致单个subtask过载，触发反压
+### Web UI验证（补充）
+- 本地Web UI成功启动（端口8081）
+- **观察到窗口/subtask瞬间变红（Backpressure HIGH），随后恢复正常**
+- 变红时机：并行度4 + 窗口5分钟 + 90%数据倾斜时，Qi_1所在subtask过载
+- 恢复时机：窗口触发后状态释放，或调小窗口到5秒后
+- 截图：
+- ![img.png](../img/Web%20UI.png)
 
 ### 测试4：对照实验（瓶颈验证）⭐
 - 配置：并行度4，窗口**5秒**（其他不变：90% Qi_1，sleep=10ms）

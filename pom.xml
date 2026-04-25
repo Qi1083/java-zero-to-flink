@@ -73,6 +73,13 @@
             <version>RELEASE</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web</artifactId>
+            <version>1.18.0</version>
+            <!-- 本地运行不要加 provided，否则不会打包进来 -->
+        </dependency>
     </dependencies>
 
     <build>
