@@ -476,3 +476,31 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 
 ### 7. 项目截图
 ![img.png](../img/runQualityDashBoardDemo.png)
+
+## 压测记录（2026.04.25）
+
+### 测试3：性能边界（反压触发）⭐
+
+**配置**：
+- 并行度：4
+- 窗口：5分钟
+- 数据倾斜：90% Qi_1
+- 流量：sleep=10ms，约100条/秒
+
+**现象**：
+- 控制台输出**明显卡顿**，从流畅变为一顿一顿
+- **任务管理器 → 逻辑处理器：观察到某个核心突然飙高到80%+，其他核心空闲，随后回落**
+- 结论：**数据倾斜导致单个subtask过载，触发反压**
+
+**原因分析**：
+1. keyBy后，90%的Qi_1集中到1个subtask（对应1个线程/核心）
+2. 窗口5分钟导致该subtask状态持续堆积
+3. 该核心CPU飙高处理堆积数据，其他3个核心空闲
+4. 处理速度 < 输入速度，上游阻塞，表现为卡顿
+
+**生产级解决方案**：
+1. 加盐（Salting）：keyBy("id" + "_" + random(0,9))
+2. 调小窗口：5分钟→1分钟
+3. 增量聚合：AggregateFunction替代ProcessWindowFunction
+4. 监控：Flink Web UI Backpressure标签观察subtask颜色
+

@@ -9,6 +9,7 @@ import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -26,10 +27,13 @@ import java.util.Random;
 
 public class CheckPointWatermarkWindowAccDemo {
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        Configuration config = new Configuration();
+        config.setString(RestOptions.BIND_PORT, "8081"); // 固定端口
+
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
 
         // 设置并行度
-        env.setParallelism(1);
+        env.setParallelism(4);
 
         // 开启检查点
         env.enableCheckpointing(3000L);
@@ -55,7 +59,7 @@ public class CheckPointWatermarkWindowAccDemo {
                         .withTimestampAssigner((element, recordTimestamp) -> element.getTs() * 1000L)
         );
 
-        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.seconds(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
+        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.minutes(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
 
             private transient ValueState<Long> valueState;
 
@@ -110,9 +114,11 @@ public class CheckPointWatermarkWindowAccDemo {
         @Override
         public void run(SourceContext<WaterSensor> ctx) throws Exception {
             while (isRunning) {
-                ctx.collect(new WaterSensor("Qi_" + (rand.nextInt(3) + 1), currTimes, 20 + rand.nextInt(30)));
+                int r = rand.nextInt(10);
+                String id = r < 9 ? "Qi_1" : "Qi_" + (rand.nextInt(10) + 2);
+                ctx.collect(new WaterSensor(id, currTimes, 20 + rand.nextInt(30)));
                 currTimes += rand.nextInt(5);
-                Thread.sleep(500);
+                Thread.sleep(10);
             }
         }
 
