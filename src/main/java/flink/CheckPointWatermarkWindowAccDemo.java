@@ -59,7 +59,7 @@ public class CheckPointWatermarkWindowAccDemo {
                         .withTimestampAssigner((element, recordTimestamp) -> element.getTs() * 1000L)
         );
 
-        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.minutes(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
+        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.seconds(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
 
             private transient ValueState<Long> valueState;
 
