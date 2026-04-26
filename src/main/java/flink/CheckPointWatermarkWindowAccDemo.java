@@ -115,6 +115,7 @@ public class CheckPointWatermarkWindowAccDemo {
                 String id = r < 9 ? "Qi_1" : "Qi_" + (rand.nextInt(10) + 2);
                 ctx.collect(new WaterSensor(id, currTimes, 20 + rand.nextInt(30)));
                 currTimes += rand.nextInt(5);
+                Thread.sleep(1);
             }
         }
 
