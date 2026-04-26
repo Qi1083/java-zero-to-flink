@@ -596,3 +596,8 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 4. 对概率性OOM，不能"试几次不崩就上线"，必须留足够内存余量（3倍以上）
 5. 必须配置重启策略（RestartStrategy），自动恢复
 6. 必须配置告警（堆内存使用率>70%触发）
+
+我在本地压测时，通过三个层面观察反压：
+1. Web UI：看到某个subtask变红，确认是数据倾斜导致单点过载
+2. 系统级：任务管理器看逻辑处理器，发现单核飙高其他空闲
+3. 现象级：控制台输出从流畅变卡顿，生产环境我会接入Prometheus，监控backPressuredTimeMsPerSecond ，超过200ms持续5分钟就告警，然后排查是数据倾斜还是窗口太大。
