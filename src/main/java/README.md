@@ -517,3 +517,37 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 2. 调小窗口：5分钟→1分钟或30秒
 3. 增量聚合：AggregateFunction替代ProcessWindowFunction
 4. 监控：Flink Web UI Backpressure标签观察subtask颜色
+
+## OOM测试记录（2026.04.26）⭐ 精确边界发现
+
+### 测试过程
+| 配置 | JVM | 窗口 | sleep | 并行度 | 倾斜 | 结果 |
+|------|-----|------|-------|--------|------|------|
+| 第1次 | 256m | 10分钟 | 1ms | 4 | 90% | 未OOM |
+| 第2次 | 128m | 30分钟 | 去掉 | 4 | 90% | 未OOM |
+| 第3次 | 80m | 30分钟 | 去掉 | 4 | 90% | 未OOM |
+| 第4次 | 69m | 30分钟 | 去掉 | 4 | 90% | **正常运行** |
+| 第5次 | 68m | 30分钟 | 去掉 | 4 | 90% | **OOM，Java heap space** |
+
+### 精确临界点
+- **69MB**：程序正常运行，Checkpoint正常产生
+- **68MB**：立即OOM（`java.lang.OutOfMemoryError: Java heap space`）
+- **差值：1MB** = JVM无法为新对象分配内存的阈值
+
+### 状态占用估算
+- Flink框架 + JVM自身开销：约30-40MB
+- 业务数据 + ValueState + 窗口状态：约30-40MB
+- **总计：69MB是生死线**
+
+### 生产环境推演
+| 环境配置 | 可承载流量 |
+|---------|-----------|
+| 本地测试（69MB） | 当前极限流量（sleep去掉，约数千条/秒） |
+| 生产TaskManager（1GB） | 约15-20倍当前流量 |
+| 生产TaskManager（4GB）+ RocksDB | 百万级/秒，状态存磁盘 |
+
+### 解决方案（面试可讲）
+> "我在本地压测时发现，69MB堆内存是临界点，68MB就OOM。这说明我的状态+数据对象精确占用约30-40MB。生产环境我会：
+> 1. 给TaskManager配1-2GB内存（留3倍余量）
+> 2. 复杂状态改用RocksDBStateBackend存磁盘
+> 3. 监控堆内存使用率，>70%触发告警"

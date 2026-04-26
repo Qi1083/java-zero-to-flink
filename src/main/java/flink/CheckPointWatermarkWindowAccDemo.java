@@ -1,8 +1,5 @@
 package flink;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
@@ -59,7 +56,7 @@ public class CheckPointWatermarkWindowAccDemo {
                         .withTimestampAssigner((element, recordTimestamp) -> element.getTs() * 1000L)
         );
 
-        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.minutes(5))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
+        addSensor.keyBy(WaterSensor::getId).window(TumblingEventTimeWindows.of(Time.minutes(30))).process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
 
             private transient ValueState<Long> valueState;
 
@@ -118,7 +115,6 @@ public class CheckPointWatermarkWindowAccDemo {
                 String id = r < 9 ? "Qi_1" : "Qi_" + (rand.nextInt(10) + 2);
                 ctx.collect(new WaterSensor(id, currTimes, 20 + rand.nextInt(30)));
                 currTimes += rand.nextInt(5);
-                Thread.sleep(10);
             }
         }
 
