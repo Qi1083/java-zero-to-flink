@@ -601,3 +601,7 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 1. Web UI：看到某个subtask变红，确认是数据倾斜导致单点过载
 2. 系统级：任务管理器看逻辑处理器，发现单核飙高其他空闲
 3. 现象级：控制台输出从流畅变卡顿，生产环境我会接入Prometheus，监控backPressuredTimeMsPerSecond ，超过200ms持续5分钟就告警，然后排查是数据倾斜还是窗口太大。
+
+## Day 17（2026.04.27）
+- 投递简历了解行业动向
+- 画Checkpoint Exactly-Once流程图
