@@ -605,3 +605,21 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 ## Day 17（2026.04.27）
 - 投递简历了解行业动向
 - 画Checkpoint Exactly-Once流程图
+
+
+## Day 18（2026.04.28）
+
+| 任务 | 状态 | 说明 |
+|:---|:---:|:---|
+| **项目2方向确定** | ✅ | 从"银行运营/反洗钱"纠正为"跨行业通用实时数据质量监控" |
+| **项目2 README初版** | ✅ | 建立文档框架，明确三模块：成功率/连续异常/延迟监控 |
+| **FailAlert手写骨架** | ✅ | 脱离IDEA提示，手写`open()`+`processElement()`逻辑流，标记卡壳点 |
+| **Checkpoint Exactly-Once口述** | ✅ | 6步流程：JM触发→Barrier插入→Source保存→算子对齐→JM确认→故障恢复 |
+| **Java并发急救** | ✅ | HashMap线程不安全原理（JDK7头插法死循环 / JDK8数据覆盖） |
+| **Doris调研决策** | ✅ | 领导要求调研，决定：周末写1页纸调研笔记，项目2预留Sink接口，**暂不编码接入** |
+
+### 代码文件
+- `FailCountValue.java`
+
+## 明日计划
+- 项目2代码骨架：`DataEvent` + `DataEventSource` + `DataQualityMonitor`空壳 | 可编译通过 |
