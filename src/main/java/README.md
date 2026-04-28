@@ -620,6 +620,6 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 
 ### 代码文件
 - `FailCountValue.java`
-
+  
 ## 明日计划
 - 项目2代码骨架：`DataEvent` + `DataEventSource` + `DataQualityMonitor`空壳 | 可编译通过 |
