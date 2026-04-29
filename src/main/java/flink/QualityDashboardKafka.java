@@ -1,5 +1,7 @@
 package flink;
 
+import entity.AlertEvent;
+import entity.TestCaseEvent;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;

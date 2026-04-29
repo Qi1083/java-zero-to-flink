@@ -623,3 +623,48 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
   
 ## 明日计划
 - 项目2代码骨架：`DataEvent` + `DataEventSource` + `DataQualityMonitor`空壳 | 可编译通过 |
+
+## Day 19（2026.04.29）
+
+### 今日目标
+项目2代码骨架搭建 + Checkpoint口述第2遍 + Java并发补课
+
+### 完成内容
+- [x] 项目2代码骨架：`DataEvent` + `DataEventSource` + `DataQualityMonitor` 空壳
+  - `DataEvent`：4字段事件模型（sourceId/status/timestamp/channel）
+  - `DataEventSource`：模拟数据源，含SUCCESS/FAIL/TIMEOUT，5%概率生成延迟数据（倒退3秒）
+  - `DataQualityMonitor`：主程序框架，含Checkpoint配置 + 三个分支注释 + 侧输出流标签定义
+- [x] Checkpoint口述第2遍：脱稿，不看图，手机录音，标记卡壳点
+- [x] Java并发：`synchronized`底层（对象头 + Monitor + 锁升级），理解"为什么ValueState无锁"
+- [x] Anki卡片3张：线程池7参数 / ValueState无锁原因 / Checkpoint 6步流程
+- [x] GitHub提交：项目2骨架代码 + README更新
+- [ ] HR电话预约：2家非外包HR，未约到（待白天再沟通）
+
+### 关键理解
+| 概念 | 理解 | 状态 |
+|------|------|------|
+| 延迟数据模拟 | Source里`ts = ts - 3000`，5%概率生成迟到事件 | ✅ |
+| allowedLateness与Watermark关系 | `forBoundedOutOfOrderness(2秒)`是流级乱序容忍；`allowedLateness(1秒)`是窗口级延迟容忍，两者独立 | ✅ 修正了之前"最多两秒"的错误认知 |
+| 分支位置 | 分支1/3在窗口算子上；分支2（连续异常）在`KeyedProcessFunction`，不是窗口 | ✅ 纠正了之前混淆 |
+| ValueState无锁 | `keyBy`保证同一线程处理同一key，单线程访问状态，天然线程安全 | ✅ |
+
+### 代码文件
+- `DataEvent.java`：跨行业通用事件模型
+- `DataEventSource.java`：模拟数据源（含延迟数据生成逻辑）
+- `DataQualityMonitor.java`：主程序框架（Checkpoint配置 + 三分支注释）
+
+### 待优化
+- 分支1窗口聚合成功率：待Day 20跑通（`SuccessRateAggregate` + `SuccessRateWindowFunction`）
+- 分支2连续异常告警：待Day 20-21接入（复用FailAlert逻辑）
+- 分支3延迟数据监控：待Day 21-22联调（`allowedLateness` + `sideOutputLateData`）
+- Checkpoint口述流利度：待脱稿3分钟不卡壳
+- FailAlert手写流畅度：待第2/3遍练习
+- HR沟通：2家非外包待白天再约
+
+### 明日计划
+| 日期 | 任务 | 产出 |
+|:---|:---|:---|
+| Day 20 | 分支1跑通：窗口聚合成功率计算 | 控制台输出各通道成功率 |
+| Day 20 | Java并发：`ConcurrentHashMap`（分段锁/CAS） | 对比HashMap线程不安全 |
+| Day 20 | HR沟通：2家非外包再约一次 | 至少1家电话时间确定 |
+| Day 20 | Checkpoint口述第3遍（如时间允许） | 流利度提升 |

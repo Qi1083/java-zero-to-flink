@@ -1,5 +1,6 @@
 package flink;
 
+import entity.WaterSensor;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;

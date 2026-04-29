@@ -1,5 +1,6 @@
 package flink;
 
+import entity.WaterSensor;
 import org.apache.flink.api.common.functions.MapFunction;
 
 // WaterSensorMapFunction.java

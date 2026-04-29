@@ -1,4 +1,4 @@
-package flink;
+package entity;
 
 public class WaterSensor {
     private String id;      // 传感器ID

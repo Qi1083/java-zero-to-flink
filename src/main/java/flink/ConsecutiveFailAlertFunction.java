@@ -1,5 +1,7 @@
 package flink;
 
+import entity.AlertEvent;
+import entity.TestCaseEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;

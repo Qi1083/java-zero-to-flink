@@ -1,4 +1,4 @@
-package flink;
+package entity;
 
 // 测试用例事件
 public class TestCaseEvent {
