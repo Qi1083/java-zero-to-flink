@@ -668,3 +668,53 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 | Day 20 | Java并发：`ConcurrentHashMap`（分段锁/CAS） | 对比HashMap线程不安全 |
 | Day 20 | HR沟通：2家非外包再约一次 | 至少1家电话时间确定 |
 | Day 20 | Checkpoint口述第3遍（如时间允许） | 流利度提升 |
+
+## Day 20（2026.04.30）
+
+### 今日目标
+项目2分支3验证：延迟数据侧输出流
+
+### 完成内容
+- [x] 分支3验证成功：延迟数据触发侧输出流
+  - 配置：Watermark乱序容忍10秒 + `allowedLateness(1秒)` + 延迟数据`ts-15秒`
+  - 结果：15秒 &gt; 1秒宽限期，溢出到`LATE_DATA_TAG`侧输出流
+  - 控制台输出：`延迟数据&gt; DataEvent{...}`
+
+### 关键理解
+| 概念 | 理解 | 状态 |
+|------|------|------|
+| 延迟数据生成 | Source里`ts = ts - 15000`，模拟15秒迟到事件 | ✅ |
+| allowedLateness作用 | 窗口关闭后的宽限期，超过则进侧输出流 | ✅ |
+| Watermark与延迟关系 | `forBoundedOutOfOrderness(10秒)`是流级乱序容忍；`allowedLateness(1秒)`是窗口级延迟容忍，两者独立 | ✅ |
+| 触发条件 | 延迟15秒 &gt; 宽限1秒 → 侧输出流捕获 | ✅ |
+
+### 代码调整
+- `DataQualityMonitor.java`：窗口临时改5秒验证（已恢复或待恢复生产配置）
+- `DataEventSource.java`：延迟数据幅度`ts-15000`（15秒）
+
+### 项目2整体状态
+| 分支 | 功能 | 技术 | 状态 |
+|:---|:---|:---|:---:|
+| 分支1 | 通道实时成功率 | `keyBy(channel)` + `TumblingWindow` + `AggregateFunction` | ✅ 跑通 |
+| 分支2 | 连续异常告警 | `keyBy(sourceId)` + `KeyedProcessFunction` + `ValueState` + `SideOutput` | ✅ 跑通 |
+| 分支3 | 延迟数据监控 | `Watermark` + `allowedLateness` + `sideOutputLateData` | ✅ 验证成功 |
+
+### 代码文件
+- `DataEventEntity.java`：跨行业通用事件模型
+- `DataEventSource.java`：模拟数据源（含15秒延迟数据）
+- `DataQualityMonitor.java`：主程序（三分支 + Checkpoint配置 + 侧输出流标签）
+
+### 待优化
+- 窗口恢复生产配置（5分钟窗口 + 适当allowedLateness）
+- FailAlert手写第2遍（脱离IDEA提示，待Day 21）
+- Checkpoint口述脱稿流利度（3分钟不卡壳，待练习）
+- Java并发：线程池7参数 + `ConcurrentHashMap`（待Day 21-22）
+- HR沟通：2家非外包待约电话（待Day 21）
+
+### 明日计划
+| 日期 | 任务 | 产出 |
+|:---|:---|:---|
+| Day 21 | FailAlert手写第2遍（关IDEA提示） | 15分钟骨架 |
+| Day 21 | Checkpoint口述第3遍（脱稿录音） | 流利度提升 |
+| Day 21 | HR沟通：2家非外包发消息约电话 | 至少1家回复 |
+| Day 21 | Java并发：`ConcurrentHashMap`（分段锁/CAS） | 对比HashMap线程不安全 |

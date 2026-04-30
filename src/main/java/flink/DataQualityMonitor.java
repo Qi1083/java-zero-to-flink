@@ -60,15 +60,15 @@ public class DataQualityMonitor {
         );
 
         SingleOutputStreamOperator<DataEventEntity> eventSource = env.addSource(new DataEventSource())
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<DataEventEntity>forBoundedOutOfOrderness(Duration.ofSeconds(2))
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<DataEventEntity>forBoundedOutOfOrderness(Duration.ofSeconds(10))
                         .withTimestampAssigner((element, recordTimestamp) -> element.getTimestamp()));
 
         OutputTag<DataEventEntity> LATE_DATA_TAG = new OutputTag<>("late_data") {
         };
 
         SingleOutputStreamOperator<String> windowEvent = eventSource.keyBy(DataEventEntity::getChannel)
-                .window(TumblingEventTimeWindows.of(Time.seconds(10)))
-                .allowedLateness(Time.seconds(2))
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .allowedLateness(Time.seconds(1))
                 .sideOutputLateData(LATE_DATA_TAG)
                 .aggregate(
                         new AggregateFunction<DataEventEntity, Tuple2<Integer, Integer>, Tuple2<Integer, Integer>>() {
@@ -80,7 +80,7 @@ public class DataQualityMonitor {
                             @Override
                             public Tuple2<Integer, Integer> add(DataEventEntity event, Tuple2<Integer, Integer> accumulator) {
 
-                                if ("PASS".equalsIgnoreCase(event.getStatus())) {
+                                if ("SUCCESS".equalsIgnoreCase(event.getStatus())) {
                                     accumulator.f0++;
                                 }
 
@@ -120,21 +120,22 @@ public class DataQualityMonitor {
                 );
 
 
-        windowEvent.print("通道成功率");
+        // windowEvent.print("通道成功率");
 
         windowEvent.getSideOutput(LATE_DATA_TAG).print("延迟数据");
 
 
-        eventSource.keyBy(DataEventEntity::getSouceId)
-                .process(new ConsecutiveFailAlertFunction())
-                .print("连续异常告警");
+//        eventSource.keyBy(DataEventEntity::getSouceId)
+//                .process(new ConsecutiveFailAlertFunction())
+//                .getSideOutput(ConsecutiveFailAlertFunction.ALERT_TAG)
+//                .print("连续异常告警");
 
         env.execute("DataQualityMonitor");
     }
 
     public static class ConsecutiveFailAlertFunction extends KeyedProcessFunction<String, DataEventEntity, DataEventEntity> {
 
-        OutputTag<DataEventEntity> ALART_FIAL_TAG = new OutputTag<>("ALART_FIAL_TAG") {
+        private static final OutputTag<DataEventEntity> ALERT_TAG = new OutputTag<>("ALERT_FIAL_TAG") {
         };
 
         private transient ValueState<Integer> failValueState;
@@ -176,18 +177,22 @@ public class DataQualityMonitor {
                 failValueState.update(count);
 
                 if ((count >= 3) && (now - time > Thread)) {
-                    ctx.output(ALART_FIAL_TAG, new DataEventEntity(
+                    ctx.output(ALERT_TAG, new DataEventEntity(
                             event.getSouceId(),
                             event.getStatus(),
                             now,
                             event.getChannel()
                     ));
 
+                    timeState.update(now);
+
                 }
 
             } else {
                 failValueState.update(0);
             }
+
+            out.collect(event);
 
         }
     }

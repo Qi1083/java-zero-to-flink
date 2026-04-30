@@ -30,7 +30,8 @@ public class DataEventSource implements SourceFunction<DataEventEntity> {
                 state = rand.nextBoolean() ? status[1] : status[2];
                 ts = currTimes;
             } else {
-                ts = currTimes - 3000L;
+                state = rand.nextBoolean() ? status[1] : status[2];
+                ts = currTimes - 15000L;
             }
 
             ctx.collect(new DataEventEntity(
@@ -40,7 +41,7 @@ public class DataEventSource implements SourceFunction<DataEventEntity> {
                     channels[rand.nextInt(3)]
             ));
 
-            currTimes += rand.nextInt(5);
+            currTimes += rand.nextInt(5000);
             Thread.sleep(10);
         }
 
