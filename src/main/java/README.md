@@ -718,3 +718,8 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 | Day 21 | Checkpoint口述第3遍（脱稿录音） | 流利度提升 |
 | Day 21 | HR沟通：2家非外包发消息约电话 | 至少1家回复 |
 | Day 21 | Java并发：`ConcurrentHashMap`（分段锁/CAS） | 对比HashMap线程不安全 |
+
+Day 22（5.2 周六）状态确认
+任务	                状态	质量
+FailAlert手写第2遍	✅	Notepad++纯手写，逻辑正确，API拼写待修正
+Checkpoint口述第3遍	✅	脱稿完成
