@@ -67,7 +67,7 @@ public class DataQualityMonitor {
         };
 
         SingleOutputStreamOperator<String> windowEvent = eventSource.keyBy(DataEventEntity::getChannel)
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(5)))
                 .allowedLateness(Time.seconds(1))
                 .sideOutputLateData(LATE_DATA_TAG)
                 .aggregate(
@@ -120,15 +120,15 @@ public class DataQualityMonitor {
                 );
 
 
-        // windowEvent.print("通道成功率");
+         windowEvent.print("通道成功率");
 
         windowEvent.getSideOutput(LATE_DATA_TAG).print("延迟数据");
 
 
-//        eventSource.keyBy(DataEventEntity::getSouceId)
-//                .process(new ConsecutiveFailAlertFunction())
-//                .getSideOutput(ConsecutiveFailAlertFunction.ALERT_TAG)
-//                .print("连续异常告警");
+        eventSource.keyBy(DataEventEntity::getSouceId)
+                .process(new ConsecutiveFailAlertFunction())
+                .getSideOutput(ConsecutiveFailAlertFunction.ALERT_TAG)
+                .print("连续异常告警");
 
         env.execute("DataQualityMonitor");
     }

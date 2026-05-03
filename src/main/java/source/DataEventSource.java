@@ -21,16 +21,20 @@ public class DataEventSource implements SourceFunction<DataEventEntity> {
             String code = String.format("%03d", num);
 
             String state = "";
+            String channel = "";
             long ts;
 
             if (num <= 74) {
                 state = status[0];
                 ts = currTimes;
+                channel = channels[1];
             } else if (num <= 94) {
                 state = rand.nextBoolean() ? status[1] : status[2];
+                channel = rand.nextBoolean() ? channels[0] : channels[2];
                 ts = currTimes;
             } else {
                 state = rand.nextBoolean() ? status[1] : status[2];
+                channel = rand.nextBoolean() ? channels[0] : channels[2];
                 ts = currTimes - 15000L;
             }
 
@@ -38,7 +42,7 @@ public class DataEventSource implements SourceFunction<DataEventEntity> {
                     "SRC" + code,
                     state,
                     ts,
-                    channels[rand.nextInt(3)]
+                    channel
             ));
 
             currTimes += rand.nextInt(5000);
