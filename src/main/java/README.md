@@ -789,3 +789,49 @@ Checkpoint口述第3遍	✅	脱稿完成
 | 功能完整性 | ✅ 三分支全部跑通 |
 | 性能边界 | ✅ CPU瓶颈+内存瓶颈双重场景复现 |
 | 可靠性 | ✅ Checkpoint正常，Exactly-Once生效 |
+
+## Day 24（2026.05.04）
+
+### 今日目标
+线程池7参数 + 拒绝策略4种，能手写创建代码
+
+### 完成内容
+- [x] 线程池7参数理解 + 手写3遍
+  - corePoolSize：核心线程数（根据CPU核数配置，本机20逻辑核）
+  - maximumPoolSize：最大线程数（2倍core）
+  - keepAliveTime：空闲线程存活时间
+  - unit：时间单位
+  - workQueue：任务队列（有界队列60，防OOM）
+  - threadFactory：线程工厂
+  - handler：拒绝策略处理器
+- [x] 拒绝策略4种掌握
+  - AbortPolicy：抛异常（默认）
+  - CallerRunsPolicy：调用者线程执行（限流）
+  - DiscardPolicy：静默丢弃
+  - DiscardOldestPolicy：丢弃最老任务
+- [x] 触发时机：核心满 + 队列满 + 最大线程满，新任务来时触发
+- [x] 手写创建代码（根据20核CPU配置）
+
+### 关键理解
+| 概念 | 理解 | 状态 |
+|------|------|------|
+| corePoolSize vs maximumPoolSize | core常驻不被销毁，超出core的临时线程空闲超时被销毁 | ✅ |
+| 任务提交流程 | 先创建到core → 满进队列 → 队列满扩展到max → 超max触发拒绝 | ✅ |
+| 与Flink关联 | TaskManager用线程池管理slot，slot数=corePoolSize概念 | ✅ |
+| shutdown vs 拒绝策略 | shutdown后提交抛RejectedExecutionException，不是拒绝策略触发 | ✅ |
+
+### 代码片段
+```java {title="线程池初始化配置（20核CPU优化版）"}
+ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+    20,    // corePoolSize 核心线程数（20逻辑核）
+    40,    // maximumPoolSize 最大线程数
+    60,    // keepAliveTime 存活时间
+    TimeUnit.SECONDS,    // unit 时间单位
+    new LinkedBlockingQueue<>(60),    // workQueue 有界队列
+    Executors.defaultThreadFactory(),    // threadFactory 线程工厂
+    new ThreadPoolExecutor.AbortPolicy()    // handler 拒绝策略
+);
+
+```
+### 明日目标
+- Day 25 尚硅谷视频第1-2集：项目架构+环境搭建	画架构图+目录结构图
