@@ -1,5 +1,5 @@
 <archetype>
-  <id>java-zero-to-flink</id>
+  <id>java-zero-to-com.qi.realtime.monitor.job</id>
   <sources>
     <source>src/main/java/App.java</source>
   </sources>

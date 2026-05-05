@@ -102,7 +102,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>flink.WorldCountStreamDemo</mainClass>
+                    <mainClass>com.qi.realtime.monitor.job.WorldCountStreamDemo</mainClass>
                 </configuration>
             </plugin>
 
@@ -121,7 +121,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>flink.WorldCount</mainClass>
+                                    <mainClass>com.qi.realtime.monitor.job.WorldCount</mainClass>
                                 </transformer>
                             </transformers>
                             <!-- 避免 Flink 内置依赖被重复打包 -->

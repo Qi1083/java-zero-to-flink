@@ -8,28 +8,28 @@
 
 ### 完成内容
 
-- [x] MathUtil.java：静态方法 `add()` vs 实例方法 `multiply()`
+- [x] com.qi.realtime.monitor.utils.MathUtil.java：静态方法 `add()` vs 实例方法 `multiply()`
 - [x] 理解 `env.readTextFile()` 的调用方式（对象.实例方法）
-- [x] Button.java：匿名内部类实现 `ClickListener` 接口
+- [x] com.qi.realtime.monitor.job.Button.java：匿名内部类实现 `com.qi.realtime.monitor.job.ClickListener` 接口
 - [x] 识别 Flink WordCount 中的 2 处匿名内部类用法
 
 ### 关键理解
 
 | Java 概念                       | Flink 对应                                               |
 |-------------------------------|--------------------------------------------------------|
-| 静态方法 `MathUtil.add()`         | `StreamExecutionEnvironment.getExecutionEnvironment()` |
+| 静态方法 `com.qi.realtime.monitor.utils.MathUtil.add()`         | `StreamExecutionEnvironment.getExecutionEnvironment()` |
 | 实例方法 `util.multiply()`        | `env.readTextFile("file.txt")`                         |
-| 匿名内部类 `new ClickListener(){}` | `new FlatMapFunction(){}`                              |
+| 匿名内部类 `new com.qi.realtime.monitor.job.ClickListener(){}` | `new FlatMapFunction(){}`                              |
 
 ### 代码文件
 
-- `MathUtil.java`：静态 vs 实例方法对比
-- `Button.java`：匿名内部类回调机制
+- `com.qi.realtime.monitor.utils.MathUtil.java`：静态 vs 实例方法对比
+- `com.qi.realtime.monitor.job.Button.java`：匿名内部类回调机制
 - `WorldCountStreamDemo.java`：标注匿名内部类位置（2处）
 
 ### 明日计划
 
-- 泛型方法：`Box<T>` 与 `DataStream<T>`
+- 泛型方法：`com.qi.realtime.monitor.job.Box<T>` 与 `DataStream<T>`
 - 用 Java 模拟 Flink 的链式调用
 
 ---
@@ -40,9 +40,9 @@
 
 ### 今日目标
 
--[x] Box<T> 泛型类
--[x] 泛型类方法swap(Box<T> a,Box<T> b)
--[x] SimpleStream<T>模拟Flink链式调用(map + filter)
+-[x] com.qi.realtime.monitor.job.Box<T> 泛型类
+-[x] 泛型类方法swap(com.qi.realtime.monitor.job.Box<T> a,com.qi.realtime.monitor.job.Box<T> b)
+-[x] com.qi.realtime.monitor.job.SimpleStream<T>模拟Flink链式调用(map + filter)
 
 ### 关键理解
 
@@ -52,8 +52,8 @@
 
 ### 代码文件
 
-- Box.java
-- SimpleStream.java
+- com.qi.realtime.monitor.job.Box.java
+- com.qi.realtime.monitor.job.SimpleStream.java
 
 ### 明日计划
 
@@ -69,7 +69,7 @@
 ### 完成内容
 
 - [x] Flink WordCount完整实现（临摹→独立写→对照）
-- [x] 类型擦除理解：运行时`Box<String>`和`Box<Integer>`是同一个类
+- [x] 类型擦除理解：运行时`com.qi.realtime.monitor.job.Box<String>`和`com.qi.realtime.monitor.job.Box<Integer>`是同一个类
 - [x] 掌握泛型限制：不能`instanceof T`，不能`new T()`
 
 ### 关键理解
@@ -356,7 +356,7 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 
 ### 代码文件
 
-- [x] TestCaseEvent.java
+- [x] com.qi.realtime.monitor.entity.TestCaseEvent.java
 - [x] QualityDashboardKafka.java
 
 
@@ -419,7 +419,7 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 **价值**：将质量问题发现时间从“T+1天”缩短到“秒级”，降低线上故障逃逸率。
 
 ## 技术架构
-![realTimeDashBoard.png](../img/realTimeDashBoard.png)
+![realTimeDashBoard.png](img/realTimeDashBoard.png)
 
 
 ## 3. 核心成果（量化）
@@ -450,7 +450,7 @@ ValueState从"看懂了写不出" → "15分钟手写完成"
 ## 6. 运行说明
 
 ### 6.1 启动Kafka环境
-- cd flink-lab
+- cd com.qi.realtime.monitor.job-lab
 - docker-compose up -d
 
 ### 6.2 创建Topic
@@ -472,10 +472,10 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 通过率> 模块：订单 | 通过：X | 总数：Y | 通过率：Z% 
 
 告警分支： 
-连续失败告警> AlertEvent(caseId=..., consecutiveFails=3)
+连续失败告警> com.qi.realtime.monitor.entity.AlertEvent(caseId=..., consecutiveFails=3)
 
 ### 7. 项目截图
-![img.png](../img/runQualityDashBoardDemo.png)
+![img.png](img/runQualityDashBoardDemo.png)
 
 ## 压测记录（2026.04.25）
 
@@ -700,7 +700,7 @@ docker compose exec kafka kafka-console-producer --topic test-cases --bootstrap-
 | 分支3 | 延迟数据监控 | `Watermark` + `allowedLateness` + `sideOutputLateData` | ✅ 验证成功 |
 
 ### 代码文件
-- `DataEventEntity.java`：跨行业通用事件模型
+- `com.qi.realtime.monitor.entity.DataEventEntity.java`：跨行业通用事件模型
 - `DataEventSource.java`：模拟数据源（含15秒延迟数据）
 - `DataQualityMonitor.java`：主程序（三分支 + Checkpoint配置 + 侧输出流标签）
 
@@ -835,3 +835,41 @@ ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
 ```
 ### 明日目标
 - Day 25 尚硅谷视频第1-2集：项目架构+环境搭建	画架构图+目录结构图
+
+## Day 25（2026.05.05）
+
+### 今日目标
+项目2架构图定稿
+![realTimeQuality.png](../resources/img/realTimeQuality.png)
+
+### 完成内容
+- [x] 项目2架构图绘制完成
+  - 数据源：各渠道实时下发数据（Kafka）
+  - 处理层：flink+分配Watermark/EventTime
+  - 分支1：keyby+window+sideOutputLateData+aggregate → 获取通过率 + 侧输出延迟数据
+  - 分支2：keyby+process+SideOutput → 连续失败3次触发告警
+  - Sink：控制台、日志（生产环境接Doris）
+  - Checkpoint：10s + HashMapStateBackend（左上角备注）
+- [x] 目录结构重构完成（标准Maven多模块）
+  - `src/main/java/com.qi.realtime.monitor/` + entity/source/function/sink/job/config/util
+  - `src/test/java/com.qi.realtime.monitor/` 预留
+  - `src/main/resources/img/` 图片资源
+
+### 关键理解
+| 概念 | 理解 | 状态 |
+|------|------|------|
+| 实时架构 vs 离线数仓 | 实时是单流处理，无ODS/DWD/DWS分层 | ✅ |
+| 窗口侧输出流 | 延迟数据从窗口算子侧输出，不是process分支 | ✅ |
+| Checkpoint位置 | 贯穿整个流程，备注在左上角 | ✅ |
+| 生产环境扩展 | 控制台→Doris，预留Sink接口 | ✅ |
+
+### 代码文件
+- 架构图：`src/main/resources/img/architecture.png`
+- 目录结构：`com.qi.realtime.monitor` 包 + 子包
+
+### 待优化
+- 项目代码迁移到新目录结构
+- README更新架构图
+- 测试代码编写（JUnit）
+
+
